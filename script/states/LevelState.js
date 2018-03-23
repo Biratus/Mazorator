@@ -6,17 +6,27 @@ function LevelState() {
 LevelState.instance;
 
 LevelState.prototype.init=function() {
+    game.stage.backgroundColor="#ffffff";
     this.graphics = this.add.graphics(0,0);
+    game.physics.startSystem(Phaser.Physics.P2JS);
     this.maze=new Maze(this.graphics);
     this.maze.init();
-    this.add.group(this.maze)
-    game.stage.backgroundColor="#ffffff";
 }
 
 LevelState.prototype.startGame=function() {
-    console.log("game start");
     this.gameStarted=true;
-    this.player = {
+    game.physics.p2.setImpactEvents(true);
+    //game.physics.enable(this.graphics);
+    //this.graphics.body.anchor.setTo(game.world.width/2,game.world.width/2);
+    var c=this.maze.randomCell();
+    this.player=this.add.sprite(c.renderer.x+InitCell.CELL_SIZE/2,c.renderer.y+InitCell.CELL_SIZE/2,"player");
+    this.player.anchor.setTo(0.5);
+    this.player.width=InitCell.CELL_SIZE*0.8;
+    this.player.height=InitCell.CELL_SIZE*0.8;
+    game.physics.p2.enable(this.player);
+    game.physics.p2.gravity.y = 100;
+    this.player.body.allowGravity=true;
+    /* this.player = {
         currentCell:this.maze.randomCell(),
         draw:function(graphic){
             graphic.beginFill(0xff0000);
@@ -24,19 +34,24 @@ LevelState.prototype.startGame=function() {
             graphic.endFill();
         },
         speed:250
-    };
-    
+    };*/
+    this.playerCollisionGroup=game.physics.p2.createCollisionGroup();
+    game.physics.p2.updateBoundsCollisionGroup();
+    this.player.body.setCollisionGroup(this.maze.collisionGroup);
+    for(var i in this.maze.children) {
+        this.maze.children[i].body.collides(this.playerCollisionGroup);
+    }
+    this.player.body.collides(this.maze.collisionGroup);
     this.controller=new Controller();
-    this.setTarget();
-    this.createPortal();
+    // this.setTarget();
+    //    this.createPortal();
     this.gameStarted=true;
-    this.updatePlayerMovement();
+    //this.updatePlayerMovement();
 }
 
 LevelState.prototype.update=function() {
     if(!this.gameStarted) return;
-    this.maze.repaint();
-    this.player.draw(this.graphics);
+    game.physics.arcade.collide(this.player, this.maze);
 }
 
 LevelState.prototype.endGame=function() {
@@ -61,7 +76,7 @@ LevelState.prototype.updatePlayerMovement=function(keyHolding) {
         this.player.currentCell=c;
         this.player.currentCell.eventManager.dispatchEvent(Event.Type.EnterEvent);
     }
-    
+
     this.movementTimeout=setTimeout(this.updatePlayerMovement.bind(this),this.player.speed);
 }
 
@@ -70,7 +85,7 @@ LevelState.prototype.setTarget=function() {
     do {
         c = this.maze.randomCell();
     } while(c===this.player.currentCell);
-    
+
     c.color=0xff00ff;
     c.eventManager.addEvent(new Event(Event.Type.EnterEvent,function(){
         LevelState.instance.endGame();
@@ -83,10 +98,10 @@ LevelState.prototype.createPortal=function() {
         c1 = this.maze.randomCell(Maze.CELL_NB*Maze.CELL_NB/3);
         c2 = this.maze.randomCell(Maze.CELL_NB*Maze.CELL_NB/3);
     } while(c1.is("target") || c2.is("target") || c1===c2 || c1===this.player.currentCell || c2===this.player.currentCell);
-    
+
     c1.color=0x0000ff;
     c2.color=0x0000ff;
-    
+
     c1.eventManager.addEvent(new Event(Event.Type.EnterEvent,function(){
         LevelState.instance.player.currentCell=c2;
         this.eventManager.dispatchEvent(Event.Type.LeaveEvent);
@@ -95,6 +110,18 @@ LevelState.prototype.createPortal=function() {
         LevelState.instance.player.currentCell=c1;
         this.eventManager.dispatchEvent(Event.Type.LeaveEvent);
     }));
+}
+
+LevelState.prototype.updateGraphRotation=function(key) {
+    switch(key) {
+        case Controller.Arrows.LEFT: this.maze.angle+=Math.PI/3; break;
+        case Controller.Arrows.RIGHT:this.maze.angle-=Math.PI/3; break;
+    }
+}
+
+LevelState.prototype.render=function() {
+    for(var i in this.maze.children) game.debug.body(this.maze.children[i]);
+    //game.debug.body(this.player);
 }
 
 LevelState.FrameRate=0;

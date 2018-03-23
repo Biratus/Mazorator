@@ -25,9 +25,9 @@ InitCell.prototype.draw=function(graphic) {
     graphic.beginFill(this.color);
     graphic.drawShape(this.renderer);
     graphic.lineStyle(InitCell.CELL_SIZE*lineRatio, 0x000000, 1);
-    
+
     if(this.sides & InitCell.SIDE_LEFT){
-       this.drawLineLeft(graphic);
+        this.drawLineLeft(graphic);
     } 
     if(this.sides & InitCell.SIDE_RIGHT) {
         this.drawLineRight(graphic);
@@ -45,26 +45,69 @@ InitCell.prototype.removeSide=function(side) {
     this.sides-=side;
 }
 InitCell.prototype.drawLineLeft=function(graphic) {
-    
-        graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
-        graphic.lineTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
+
+    graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
+    graphic.lineTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
 }
 
 InitCell.prototype.drawLineTop=function(graphic) {
-    
-        graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
-        graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
+
+    graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
+    graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
 }
 
 InitCell.prototype.drawLineDown=function(graphic) {
-    
-        graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
-        graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
+
+    graphic.moveTo(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
+    graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
 }
 
 InitCell.prototype.drawLineRight=function(graphic) {
-    
-        graphic.moveTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
-        graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
+
+    graphic.moveTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE);
+    graphic.lineTo(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE);
 }
+
+InitCell.prototype.getLines=function() {
+    var l=[];
+    if(this.sides & InitCell.SIDE_LEFT){
+        l.push(new InitLine(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE
+                            ,this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE));
+    } 
+    if(this.sides & InitCell.SIDE_RIGHT) {
+        l.push(new InitLine(this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE
+                            ,this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE));
+    }
+    if(this.sides & InitCell.SIDE_UP) {
+        l.push(new InitLine(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE
+                            ,this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE));
+    }
+    if(this.sides & InitCell.SIDE_DOWN) {
+        l.push(new InitLine(this.xIndex*InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE
+                            ,this.xIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE,this.yIndex*InitCell.CELL_SIZE+InitCell.CELL_SIZE));
+    }
+    return l;
+}
+
 var lineRatio=0.02;
+
+function InitLine(x1,y1,x2,y2) {
+    this.xStart=x1;
+    this.yStart=y1;
+    this.xEnd=x2;
+    this.yEnd=y2;
+
+    this.equals=function(line) {
+        return (this.xStart==line.xStart && this.yStart==line.yStart && this.xEnd==line.xEnd && this.yEnd==line.yEnd) 
+        || (this.xStart==line.xEnd && this.yStart==line.yEnd && this.xEnd==line.xStart && this.yEnd==line.yStart);
+    }
+    this.toLine=function() {
+        var x=this.xStart,y=this.yStart;
+        var width=lineRatio*InitCell.CELL_SIZE,height=lineRatio*InitCell.CELL_SIZE;
+        if(this.xStart>this.xEnd) x=this.xEnd;
+        if(this.yStart>this.yEnd) y=this.yEnd;
+        if(Math.abs(this.xStart-this.xEnd) > Math.abs(this.yStart-this.yEnd)) width=InitCell.CELL_SIZE;
+        else height=InitCell.CELL_SIZE;
+        return new Line(x,y,width,height);
+    }
+}

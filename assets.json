@@ -1,0 +1,6 @@
+{
+	"assets":{
+		"image": {"player":"player.png",
+                 "wall":"wall.png"}
+	}
+}

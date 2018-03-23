@@ -7,10 +7,10 @@ LoadState.prototype.init=function(data) {
 
 LoadState.prototype.preload=function() {
     //load images
-    /*for(var i in this.datas.assets.image) {
-        this.load.image(i,this.datas.assets.image[i]);
+    for(var i in this.datas.assets.image) {
+        this.load.image(i,"assets/"+this.datas.assets.image[i]);
     }
-    for(var i in this.datas.assets.audio) {
+    /*for(var i in this.datas.assets.audio) {
         this.load.audio(i,this.datas.assets.audio[i]);
     }
     var c;
