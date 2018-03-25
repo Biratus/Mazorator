@@ -20,8 +20,8 @@ LevelState.prototype.startGame=function() {
     var c=this.maze.randomCell();
     this.player=this.add.sprite(c.renderer.x+InitCell.CELL_SIZE/2,c.renderer.y+InitCell.CELL_SIZE/2,"player");
     this.player.anchor.setTo(0.5);
-    this.player.width=InitCell.CELL_SIZE*0.8;
-    this.player.height=InitCell.CELL_SIZE*0.8;
+    this.player.width=InitCell.CELL_SIZE*0.5;
+    this.player.height=InitCell.CELL_SIZE*0.5;
     game.physics.p2.enable(this.player,true);
     game.physics.p2.gravity.y = 100;
     this.player.body.allowGravity=true;
@@ -115,7 +115,7 @@ LevelState.prototype.createPortal=function() {
 LevelState.prototype.updateGraphRotation=function(key) {
     var n=Math.PI/36;
     for(var i in this.maze.children) {
-        this.maze.children[i].rotate(key==Controller.Arrows.LEFT?n:-n);
+        this.maze.children[i].rotate(key==Controller.Arrows.LEFT?-n:n);
     }
     /*switch(key) {
         case Controller.Arrows.LEFT: this.maze.rotation+=n; break;
@@ -123,8 +123,8 @@ LevelState.prototype.updateGraphRotation=function(key) {
     }*/
 }
 LevelState.prototype.preRender=function() {
-    if(!this.line) this.line=new Phaser.Line(game.world.centerX,game.world.centerY,this.maze.children[0].x,this.maze.children[0].y);
-    this.line.setTo(game.world.centerX,game.world.centerY,this.maze.children[0].x,this.maze.children[0].y);
+    if(!this.line) this.line=new Phaser.Line(this.maze.centerX,this.maze.centerY,this.maze.children[0].x,this.maze.children[0].y);
+    this.line.setTo(this.maze.centerX,this.maze.centerY,this.maze.children[0].x,this.maze.children[0].y);
 }
 LevelState.prototype.render=function() {
     

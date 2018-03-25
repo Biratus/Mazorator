@@ -11,7 +11,7 @@ Maze.prototype.constructor=Maze;
 
 Maze.prototype.init=function() {
     this.cells=[];
-    InitCell.CELL_SIZE=game.world.width/Maze.CELL_NB;
+    InitCell.CELL_SIZE=game.world.width*0.8/Maze.CELL_NB;
     for(var y = 0;y<Maze.CELL_NB;y++)
         for(var x=0;x<Maze.CELL_NB;x++)
             this.cells.push(new InitCell(x,y));
@@ -79,8 +79,10 @@ Maze.prototype.mazeGenerated=function() {
         this.add(l);
         game.physics.p2.enable(l,true);
         l.body.setCollisionGroup(this.collisionGroup);
-        l.init();
     }
+    
+    this.prop={"centerX":this.x+this.width/2,"centerY":this.y+this.height/2,"width":this.width,"height":this.height};
+    for(var i in this.children) this.children[i].init();
     this.graphics.clear();
     LevelState.instance.startGame();
 }
