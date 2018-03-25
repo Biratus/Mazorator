@@ -9,21 +9,20 @@ LevelState.prototype.init=function() {
     game.stage.backgroundColor="#ffffff";
     this.graphics = this.add.graphics(0,0);
     game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.p2.setImpactEvents(true);
+    game.physics.p2.defaultRestitution = 0.8;
     this.maze=new Maze(this.graphics);
     this.maze.init();
 }
 
 LevelState.prototype.startGame=function() {
     this.gameStarted=true;
-    game.physics.p2.setImpactEvents(true);
-    //game.physics.enable(this.graphics);
-    //this.graphics.body.anchor.setTo(game.world.width/2,game.world.width/2);
     var c=this.maze.randomCell();
     this.player=this.add.sprite(c.renderer.x+InitCell.CELL_SIZE/2,c.renderer.y+InitCell.CELL_SIZE/2,"player");
     this.player.anchor.setTo(0.5);
     this.player.width=InitCell.CELL_SIZE*0.8;
     this.player.height=InitCell.CELL_SIZE*0.8;
-    game.physics.p2.enable(this.player);
+    game.physics.p2.enable(this.player,true);
     game.physics.p2.gravity.y = 100;
     this.player.body.allowGravity=true;
     /* this.player = {
@@ -37,10 +36,12 @@ LevelState.prototype.startGame=function() {
     };*/
     this.playerCollisionGroup=game.physics.p2.createCollisionGroup();
     game.physics.p2.updateBoundsCollisionGroup();
-    this.player.body.setCollisionGroup(this.maze.collisionGroup);
+    //make line collide with player
     for(var i in this.maze.children) {
         this.maze.children[i].body.collides(this.playerCollisionGroup);
     }
+    //make player collide with lines
+    this.player.body.setCollisionGroup(this.playerCollisionGroup);
     this.player.body.collides(this.maze.collisionGroup);
     this.controller=new Controller();
     // this.setTarget();
@@ -51,7 +52,6 @@ LevelState.prototype.startGame=function() {
 
 LevelState.prototype.update=function() {
     if(!this.gameStarted) return;
-    game.physics.arcade.collide(this.player, this.maze);
 }
 
 LevelState.prototype.endGame=function() {
@@ -113,15 +113,22 @@ LevelState.prototype.createPortal=function() {
 }
 
 LevelState.prototype.updateGraphRotation=function(key) {
-    switch(key) {
-        case Controller.Arrows.LEFT: this.maze.angle+=Math.PI/3; break;
-        case Controller.Arrows.RIGHT:this.maze.angle-=Math.PI/3; break;
+    var n=Math.PI/36;
+    for(var i in this.maze.children) {
+        this.maze.children[i].rotate(key==Controller.Arrows.LEFT?n:-n);
     }
+    /*switch(key) {
+        case Controller.Arrows.LEFT: this.maze.rotation+=n; break;
+        case Controller.Arrows.RIGHT:this.maze.rotation-=n; break;
+    }*/
 }
-
+LevelState.prototype.preRender=function() {
+    if(!this.line) this.line=new Phaser.Line(game.world.centerX,game.world.centerY,this.maze.children[0].x,this.maze.children[0].y);
+    this.line.setTo(game.world.centerX,game.world.centerY,this.maze.children[0].x,this.maze.children[0].y);
+}
 LevelState.prototype.render=function() {
-    for(var i in this.maze.children) game.debug.body(this.maze.children[i]);
-    //game.debug.body(this.player);
+    
+     game.debug.geom(this.line);
 }
 
 LevelState.FrameRate=0;

@@ -52,6 +52,8 @@ Maze.prototype.generateMaze=function() {
 }
 
 Maze.prototype.mazeGenerated=function() {
+    //this.x+=game.world.width/2;
+    //this.y+=game.world.height/2
     var prim_lines=[];
     lineRatio=0.03;
     for(var i in this.cells) {
@@ -62,14 +64,22 @@ Maze.prototype.mazeGenerated=function() {
             })) prim_lines.push(l[j]);
         }
     }
-    this.enableBody=true;
-    this.enableBodyDebug=true;
-    this.physicsBodyType = Phaser.Physics.P2JS;
+    //this.enableBody=true;
+    //this.enableBodyDebug=true;
+    //this.physicsBodyType = Phaser.Physics.P2JS;
     this.collisionGroup=game.physics.p2.createCollisionGroup();
+    /*var l=prim_lines[25].toLine();
+        this.add(l);
+        game.physics.p2.enable(l,true);
+        l.body.setCollisionGroup(this.collisionGroup);
+        l.init();*/
+    
     for(var i in prim_lines) {
-        this.add(prim_lines[i].toLine());
-        this.children[this.children.length-1].body.setCollisionGroup(this.collisionGroup);
-        this.children[this.children.length-1].init();
+        var l=prim_lines[i].toLine();
+        this.add(l);
+        game.physics.p2.enable(l,true);
+        l.body.setCollisionGroup(this.collisionGroup);
+        l.init();
     }
     this.graphics.clear();
     LevelState.instance.startGame();

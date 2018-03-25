@@ -12,6 +12,7 @@ Controller.prototype.down=function(event) {
     }
     this.keysDown.push(event.which);
     this.lastKey={"which":event.which,"when":new Date().getTime()};*/
+     LevelState.instance.updateGraphRotation(event.which);
 }
 
 Controller.prototype.up=function(event) {
@@ -20,7 +21,7 @@ Controller.prototype.up=function(event) {
     if(this.lastKey.which==event.which && new Date().getTime()-this.lastKey.when<150) {
         LevelState.instance.updatePlayerMovement(this.lastKey.which);
     }*/
-    LevelState.instance.updateGraphRotation(event.which);
+   
 }
 
 Controller.prototype.press=function(event) {

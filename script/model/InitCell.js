@@ -99,7 +99,7 @@ function InitLine(x1,y1,x2,y2) {
 
     this.equals=function(line) {
         return (this.xStart==line.xStart && this.yStart==line.yStart && this.xEnd==line.xEnd && this.yEnd==line.yEnd) 
-        || (this.xStart==line.xEnd && this.yStart==line.yEnd && this.xEnd==line.xStart && this.yEnd==line.yStart);
+            || (this.xStart==line.xEnd && this.yStart==line.yEnd && this.xEnd==line.xStart && this.yEnd==line.yStart);
     }
     this.toLine=function() {
         var x=this.xStart,y=this.yStart;
@@ -108,6 +108,7 @@ function InitLine(x1,y1,x2,y2) {
         if(this.yStart>this.yEnd) y=this.yEnd;
         if(Math.abs(this.xStart-this.xEnd) > Math.abs(this.yStart-this.yEnd)) width=InitCell.CELL_SIZE;
         else height=InitCell.CELL_SIZE;
+        //return new Line(x-game.world.width/2,y-game.world.game.height/2,width,height);
         return new Line(x,y,width,height);
     }
 }
