@@ -1,3 +1,4 @@
+var speed=100;
 function LevelState() {
     Phaser.State.call(this);
     LevelState.instance=this;
@@ -17,23 +18,14 @@ LevelState.prototype.init=function() {
 
 LevelState.prototype.startGame=function() {
     this.gameStarted=true;
-    var c=this.maze.randomCell();
+    var c=this.maze.cells[0];
     this.player=this.add.sprite(c.renderer.x+InitCell.CELL_SIZE/2,c.renderer.y+InitCell.CELL_SIZE/2,"player");
     this.player.anchor.setTo(0.5);
     this.player.width=InitCell.CELL_SIZE*0.5;
     this.player.height=InitCell.CELL_SIZE*0.5;
     game.physics.p2.enable(this.player,true);
-    game.physics.p2.gravity.y = 100;
+    game.physics.p2.gravity.y = 200;
     this.player.body.allowGravity=true;
-    /* this.player = {
-        currentCell:this.maze.randomCell(),
-        draw:function(graphic){
-            graphic.beginFill(0xff0000);
-            graphic.drawRect(this.currentCell.x,this.currentCell.y,InitCell.CELL_SIZE,InitCell.CELL_SIZE);
-            graphic.endFill();
-        },
-        speed:250
-    };*/
     this.playerCollisionGroup=game.physics.p2.createCollisionGroup();
     game.physics.p2.updateBoundsCollisionGroup();
     //make line collide with player
@@ -43,19 +35,33 @@ LevelState.prototype.startGame=function() {
     //make player collide with lines
     this.player.body.setCollisionGroup(this.playerCollisionGroup);
     this.player.body.collides(this.maze.collisionGroup);
-    this.controller=new Controller();
+    
     // this.setTarget();
     //    this.createPortal();
     this.gameStarted=true;
-    //this.updatePlayerMovement();
+    this.player.fixedRotation=true;
+    this.cursors = game.input.keyboard.createCursorKeys();
 }
 
 LevelState.prototype.update=function() {
     if(!this.gameStarted) return;
+
+    this.player.body.setZeroRotation();
+    this.player.body.rotation=0;
+    
+    if (this.cursors.left.isDown && !this.cursors.upIsDown) this.player.body.moveLeft(speed);
+    else if (this.cursors.right.isDown && !this.cursors.upIsDown) this.player.body.moveRight(speed);
+    if (this.cursors.up.isDown) {
+        this.cursors.upIsDown=true;
+        this.player.body.setZeroVelocity();
+        this.player.body.moveUp(speed*1.5);
+    } else if(this.cursors.up.isUp && this.cursors.upIsDown) {
+        this.player.body.setZeroVelocity();
+        this.cursors.upIsDown=false;
+    }
 }
 
 LevelState.prototype.endGame=function() {
-    clearTimeout(this.movementTimeout);
     this.gameStarted=false;
     console.log("end");
 }
@@ -121,14 +127,6 @@ LevelState.prototype.updateGraphRotation=function(key) {
         case Controller.Arrows.LEFT: this.maze.rotation+=n; break;
         case Controller.Arrows.RIGHT:this.maze.rotation-=n; break;
     }*/
-}
-LevelState.prototype.preRender=function() {
-    if(!this.line) this.line=new Phaser.Line(this.maze.centerX,this.maze.centerY,this.maze.children[0].x,this.maze.children[0].y);
-    this.line.setTo(this.maze.centerX,this.maze.centerY,this.maze.children[0].x,this.maze.children[0].y);
-}
-LevelState.prototype.render=function() {
-    
-     game.debug.geom(this.line);
 }
 
 LevelState.FrameRate=0;
